@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Valentine Card</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    html, body { 
+      height: 100%; 
+      margin: 0;
+    }
+    body {
+      display: grid; 
+      place-items: center;
+      background: #0f1115;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      position: relative;
+    }
+
+    .landing-page {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0f1115;
+      z-index: 1000;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    .landing-page.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .landing-image {
+      max-width: 400px;
+      max-height: 400px;
+      width: auto;
+      height: auto;
+      margin-bottom: 40px;
+    }
+
+    .landing-text {
+      color: #ffffff;
+      font-size: 24px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .landing-buttons {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .landing-button {
+      padding: 12px 24px;
+      font-size: 16px;
+      border: 4px solid #333333;
+      background: #ffffff;
+      color: #000000;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.1s ease;
+      font-family: 'Courier New', monospace;
+      box-shadow: 4px 4px 0px #333333;
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+      border-image: none;
+      -webkit-border-image: none;
+    }
+
+    .landing-button:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px #000000;
+    }
+
+    .landing-button:active {
+      transform: translate(4px, 4px);
+      box-shadow: 0px 0px 0px #000000;
+    }
+
+    .video-container {
+      position: fixed;
+      inset: 0;
+      background: #000000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .video-container.active {
+      display: flex;
+    }
+
+    .video-container video {
+      max-width: 100vw;
+      max-height: 100vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .black-screen {
+      position: fixed;
+      inset: 0;
+      background: #000000;
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    .black-screen.active {
+      display: flex;
+    }
+
+    .black-screen img {
+      max-width: 400px;
+      max-height: 400px;
+      width: auto;
+      height: auto;
+    }
+
+    .message-box {
+      position: relative;
+      background: #ffffff;
+      border: 4px solid #333333;
+      padding: 16px 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 18px;
+      color: #000000;
+      text-align: center;
+      box-shadow: 4px 4px 0px #333333;
+      border-radius: 8px;
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+      opacity: 0;
+      min-height: 60px;
+      min-width: 400px;
+      width: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      order: -1;
+    }
+
+    .message-box.visible {
+      animation: messagePopIn 0.2s ease-out forwards;
+    }
+
+    .message-box.typing-ready {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .message-text {
+      display: inline-block;
+    }
+
+    .message-text.typing::after {
+      content: '|';
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    .accept-button {
+      padding: 12px 24px;
+      font-size: 16px;
+      border: 4px solid #333333;
+      background: #ffffff;
+      color: #000000;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.1s ease;
+      font-family: 'Courier New', monospace;
+      box-shadow: 4px 4px 0px #333333;
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+      margin-top: 20px;
+      opacity: 0;
+      animation: buttonAppear 0.6s ease-out forwards;
+    }
+
+    .accept-button:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px #333333;
+    }
+
+    .accept-button:active {
+      transform: translate(4px, 4px);
+      box-shadow: 0px 0px 0px #333333;
+    }
+
+    @keyframes buttonAppear {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes messagePopIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .message-box.visible {
+      min-height: 60px;
+      height: auto;
+    }
+
+    .no-screen {
+      position: fixed;
+      inset: 0;
+      background: #000000;
+      z-index: 1500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .no-screen.active {
+      display: flex;
+    }
+
+    .no-screen-text {
+      color: #ffffff;
+      font-size: 64px;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      text-align: center;
+    }
+
+    .go-back-button {
+      position: absolute;
+      bottom: 30px;
+      left: 30px;
+      padding: 12px 24px;
+      font-size: 16px;
+      border: 4px solid #333333;
+      background: #ffffff;
+      color: #000000;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.1s ease;
+      font-family: 'Courier New', monospace;
+      box-shadow: 4px 4px 0px #333333;
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+    }
+
+    .go-back-button:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px #333333;
+    }
+
+    .go-back-button:active {
+      transform: translate(4px, 4px);
+      box-shadow: 0px 0px 0px #333333;
+    }
+
+    .card { 
+      width: 350px; 
+      height: 500px; 
+      perspective: 1200px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    .card.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .card-flip-container {
+      width: 350px;
+      height: 500px;
+      perspective: 1200px;
+      position: relative;
+    }
+
+    .card-flip-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.6s ease;
+    }
+
+    .card-flip-inner.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-front,
+    .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0,0,0,.45), 0 3px 12px rgba(0,0,0,.25);
+    }
+
+    .card-back {
+      transform: rotateY(0deg);
+      background: radial-gradient(120% 120% at 10% 0%, #1b2232, #0e1829 60%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-front {
+      transform: rotateY(180deg);
+    }
+
+    .card-back img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 120ms ease;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0,0,0,.45), 0 3px 12px rgba(0,0,0,.25);
+    }
+    .card-inner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    :root {
+      --nx: 0;
+      --ny: 0;
+      --speed: 0;
+    }
+
+    .holo {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      z-index: 10;
+      background:
+        repeating-linear-gradient(
+          calc(90deg + (var(--nx) * 15deg) + (var(--ny) * 10deg)),
+          transparent 0%,
+          transparent 5%,
+          rgba(255,255,255,0.60) 6%,
+          rgba(255,255,255,0.80) 7.5%,
+          rgba(255,255,255,0.60) 9%,
+          transparent 11%,
+          transparent 18%,
+          rgba(255,255,255,0.55) 19%,
+          rgba(255,255,255,0.75) 20.5%,
+          rgba(255,255,255,0.55) 22%,
+          transparent 24%,
+          transparent 100%
+        ),
+        repeating-linear-gradient(
+          calc(45deg + (var(--nx) * 20deg) - (var(--ny) * 15deg)),
+          transparent 0%,
+          transparent 8%,
+          rgba(255,255,255,0.40) 9%,
+          rgba(255,255,255,0.65) 10.8%,
+          rgba(255,255,255,0.40) 12.5%,
+          transparent 14%,
+          transparent 22%,
+          rgba(255,255,255,0.35) 23.2%,
+          rgba(255,255,255,0.60) 24.5%,
+          rgba(255,255,255,0.35) 26%,
+          transparent 28%,
+          transparent 100%
+        ),
+        repeating-linear-gradient(
+          calc(135deg + (var(--nx) * 18deg) + (var(--ny) * 12deg)),
+          transparent 0%,
+          transparent 11%,
+          rgba(255,255,255,0.30) 12%,
+          rgba(255,255,255,0.50) 13.3%,
+          rgba(255,255,255,0.30) 14.7%,
+          transparent 16%,
+          transparent 26%,
+          rgba(255,255,255,0.28) 27.5%,
+          rgba(255,255,255,0.48) 29%,
+          rgba(255,255,255,0.28) 30.5%,
+          transparent 32%,
+          transparent 100%
+        ),
+        repeating-linear-gradient(
+          calc(120deg + (var(--nx) * 25deg) + (var(--ny) * 20deg)),
+          rgba(255,200,200,0.25) 0%,
+          rgba(255,200,200,0.25) 8%,
+          rgba(200,255,200,0.25) 18%,
+          rgba(200,255,200,0.25) 28%,
+          rgba(200,200,255,0.25) 40%,
+          rgba(200,200,255,0.25) 50%,
+          rgba(255,255,200,0.25) 62%,
+          rgba(255,255,200,0.25) 72%,
+          rgba(255,200,200,0.25) 82%,
+          rgba(255,200,200,0.25) 100%
+        ),
+        radial-gradient(
+          ellipse 120% 80% at calc(50% + var(--nx) * 30%) calc(50% + var(--ny) * 30%),
+          rgba(255,255,255,0.40) 0%,
+          rgba(255,255,255,0.25) 30%,
+          transparent 60%
+        );
+      background-size: 180% 180%, 220% 220%, 200% 200%, 160% 160%, cover;
+      background-position:
+        calc(50% + (var(--nx) * 50%) + (var(--ny) * 20%)) calc(50% + (var(--ny) * 30%)),
+        calc(50% - (var(--nx) * 30%) + (var(--ny) * 40%)) calc(50% + (var(--nx) * 25%)),
+        calc(50% + (var(--nx) * 35%) - (var(--ny) * 15%)) calc(50% - (var(--nx) * 20%) + (var(--ny) * 25%)),
+        calc(50% + (var(--nx) * 20%)) calc(50% + (var(--ny) * 20%)),
+        center;
+      opacity: calc(var(--speed) * 1.5);
+      transition: opacity 200ms ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="landing-page" id="landingPage">
+    <img src="espurr.avif" alt="espurr" class="landing-image">
+    <div class="landing-text">will you be my valentine?</div>
+    <div class="landing-buttons">
+      <button class="landing-button" id="yesButton">yes</button>
+      <button class="landing-button" id="annieButton">annie i already asked you to be my valentine</button>
+      </div>
+        </div>
+      
+  <div class="video-container" id="videoContainer">
+    <video id="espurrVideo" src="espurrrun.mp4" playsinline></video>
+        </div>
+      
+  <div class="no-screen" id="noScreen">
+    <div class="no-screen-text">can you just say yes</div>
+    <button class="go-back-button" id="goBackButton">go back</button>
+        </div>
+      
+  <div class="black-screen" id="blackScreen">
+    <div class="message-box" id="messageBox">
+      <span class="message-text" id="messageText"></span>
+        </div>
+    <img src="espurrstand.png" alt="espurr standing">
+    <button class="accept-button" id="acceptButton" style="display: none;">accept</button>
+        </div>
+      
+  <audio id="notifSound" src="notif.mp3" preload="auto"></audio>
+
+  <div class="card" id="card">
+    <div class="card-flip-container">
+      <div class="card-flip-inner">
+        <div class="card-back" id="cardBack">
+          <img src="pokecard.png" alt="pokemon card back" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'color:white;text-align:center;padding:20px;\'>Card Back</div>'">
+        </div>
+        <div class="card-front">
+          <div class="card-inner" id="cardInner">
+            <img src="valentine.png" alt="valentine card">
+            <div class="holo"></div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
